@@ -40,4 +40,24 @@ function(apply_lib_patches EXTERNAL_DIR)
     else ()
         message(FATAL_ERROR "Failed to apply Bluepad32 patch: ${BLUEPAD32_PATCH_ERROR}")
     endif ()
+
+    set(BLUEPAD32_STADIA_PATCH "${EXTERNAL_DIR}/patches/bluepad32_stadia_buttons.diff")
+
+    message(STATUS "Applying Bluepad32 Stadia buttons patch: ${BLUEPAD32_STADIA_PATCH}")
+
+    execute_process(
+        COMMAND git apply --ignore-whitespace ${BLUEPAD32_STADIA_PATCH}
+        WORKING_DIRECTORY ${BLUEPAD32_PATH}
+        RESULT_VARIABLE BLUEPAD32_STADIA_PATCH_RESULT
+        OUTPUT_VARIABLE BLUEPAD32_STADIA_PATCH_OUTPUT
+        ERROR_VARIABLE BLUEPAD32_STADIA_PATCH_ERROR
+    )
+
+    if (BLUEPAD32_STADIA_PATCH_RESULT EQUAL 0)
+        message(STATUS "Bluepad32 Stadia buttons patch applied successfully.")
+    elseif (BLUEPAD32_STADIA_PATCH_ERROR MATCHES "patch does not apply")
+        message(STATUS "Bluepad32 Stadia buttons patch already applied.")
+    else ()
+        message(FATAL_ERROR "Failed to apply Bluepad32 Stadia buttons patch: ${BLUEPAD32_STADIA_PATCH_ERROR}")
+    endif ()
 endfunction()
