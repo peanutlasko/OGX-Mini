@@ -34,7 +34,8 @@ Fork changes, all additive:
 - Always keep interface 0 of the XInput config descriptor byte-identical to upstream and first.
 - Never change other output modes' behavior; the fork must stay mergeable with upstream.
 - Never commit `build/`, `dist/`, or `Firmware/external/pico-sdk`.
-- Ask first before pushing to GitHub (`origin` = peanutlasko/OGX-Mini) and before opening anything against upstream.
+- Ask first before pushing to GitHub (`origin` = peanutlasko/OGX-Mini, default branch `stadia-extras`) and before opening anything against upstream.
+- Keep `master` as an untouched mirror of `upstream/master`; pull upstream changes there and rebase or merge `stadia-extras` on top. Never merge the fork work into `master`.
 
 ## Current status
 Working. Verified on laski-pc on 2026-09-22: Windows enumerates a USB Composite Device with "Xbox 360 Controller for Windows" and "HID Keyboard Device", gamepad inputs and rumble work, Capture sends F14 and Assistant sends F15. Nothing pending. Possible follow-ups: web-app mapping of the new keys, upstream PR.
