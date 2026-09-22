@@ -37,10 +37,10 @@ Fork changes, all additive:
 - Ask first before pushing to GitHub (`origin` = peanutlasko/OGX-Mini) and before opening anything against upstream.
 
 ## Current status
-Firmware complete and built (commit `6b4c563`). Awaiting on-device confirmation from the user for checkpoints 2 (composite enumeration on Windows) and 3 (F14/F15 arrive). Checkpoint 1 (stock build behaves like the release) was sent for testing at the same time.
+Working. Verified on laski-pc on 2026-09-22: Windows enumerates a USB Composite Device with "Xbox 360 Controller for Windows" and "HID Keyboard Device", gamepad inputs and rumble work, Capture sends F14 and Assistant sends F15. Nothing pending. Possible follow-ups: web-app mapping of the new keys, upstream PR.
 
 ## Recent changes
-- 2026-09-22: Composite XInput + HID keyboard, MS OS descriptors, Bluepad32 patch, F14/F15 mapping. Spec in `docs/`, plan in `plans/`.
+- 2026-09-22: Composite XInput + HID keyboard, MS OS descriptors, Bluepad32 patch, F14/F15 mapping. Spec in `docs/`, plan in `plans/`. Verified on hardware the same day.
 - 2026-09-22: Forked upstream at `ccccf66`, set up local toolchain, reproduced stock Pico 2 W build.
 
 ## Lessons learned

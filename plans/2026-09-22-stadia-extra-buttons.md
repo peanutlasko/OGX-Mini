@@ -38,13 +38,13 @@
 Run: `cmake --build build`
 Expected: exit 0, `build/OGX-Mini-v1.0.0a3-PI_PICO2W.uf2` exists. (Done: 2026-09-22, 1,158,144 bytes.)
 
-- [ ] **Step 2: Send the uf2 to the user and have them flash it**
+- [x] **Step 2: Send the uf2 to the user and have them flash it**
 
 Hold BOOTSEL while plugging in, copy the file to the RPI-RP2 drive, re-pair the controller if needed, switch to XInput with Menu + D-pad Up.
 
-- [ ] **Step 3: User confirms**
+- [x] **Step 3: User confirms**
 
-Expected: inputs and rumble identical to the release build. If not, stop: the toolchain differs from upstream CI and must be fixed before any code change.
+Confirmed 2026-09-22 with the final build. Expected: inputs and rumble identical to the release build. If not, stop: the toolchain differs from upstream CI and must be fixed before any code change.
 
 ---
 
@@ -57,7 +57,7 @@ Expected: inputs and rumble identical to the release build. If not, stop: the to
 **Interfaces:**
 - Produces: `MISC_BUTTON_CAPTURE` set for Stadia button 17, and a new `MISC_BUTTON_ASSISTANT` (= `BIT(4)`, value 0x10) set for Stadia button 18, both in `uni_gamepad_t.misc_buttons`.
 
-- [ ] **Step 1: Edit the submodule working tree**
+- [x] **Step 1: Edit the submodule working tree**
 
 In `Firmware/external/bluepad32/src/components/bluepad32/include/controller/uni_gamepad.h`, inside the `enum` that defines `MISC_BUTTON_SYSTEM` etc., add after the `MISC_BUTTON_CAPTURE` line:
 
@@ -91,7 +91,7 @@ with:
                     break;
 ```
 
-- [ ] **Step 2: Generate the patch file and revert the submodule**
+- [x] **Step 2: Generate the patch file and revert the submodule**
 
 ```bash
 cd Firmware/external/bluepad32
@@ -103,7 +103,7 @@ git checkout -- src/components/bluepad32/include/controller/uni_gamepad.h \
 cd ../../..
 ```
 
-- [ ] **Step 3: Apply it from CMake**
+- [x] **Step 3: Apply it from CMake**
 
 Append to `Firmware/cmake/patch_libs.cmake` inside `apply_lib_patches`, after the Bluepad32 block:
 
@@ -129,12 +129,12 @@ Append to `Firmware/cmake/patch_libs.cmake` inside `apply_lib_patches`, after th
     endif ()
 ```
 
-- [ ] **Step 4: Verify the patch applies and builds**
+- [x] **Step 4: Verify the patch applies and builds**
 
 Run: `cmake -S Firmware/RP2040 -B build 2>&1 | grep -i stadia` then `cmake --build build`
 Expected: "Bluepad32 Stadia buttons patch applied successfully." and exit 0. Run configure a second time: expect "already applied".
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Firmware/external/patches/bluepad32_stadia_buttons.diff Firmware/cmake/patch_libs.cmake
@@ -152,7 +152,7 @@ git commit -m "Add Bluepad32 patch exposing Stadia Capture and Assistant buttons
 **Interfaces:**
 - Produces: `Gamepad::BUTTON_CAPTURE = 0x1000` and `Gamepad::BUTTON_ASSISTANT = 0x2000` in `Gamepad::PadIn::buttons`. Not remappable through `MAP_BUTTON_*`.
 
-- [ ] **Step 1: Add the constants**
+- [x] **Step 1: Add the constants**
 
 In `Gamepad.h` after `static constexpr uint16_t BUTTON_MISC  = 0x0800;` add:
 
@@ -162,7 +162,7 @@ In `Gamepad.h` after `static constexpr uint16_t BUTTON_MISC  = 0x0800;` add:
     static constexpr uint16_t BUTTON_ASSISTANT = 0x2000;
 ```
 
-- [ ] **Step 2: Bridge them from Bluepad32**
+- [x] **Step 2: Bridge them from Bluepad32**
 
 In `Bluepad32.cpp` after the `MISC_BUTTON_SYSTEM` line add:
 
@@ -171,12 +171,12 @@ In `Bluepad32.cpp` after the `MISC_BUTTON_SYSTEM` line add:
     if (uni_gp->misc_buttons & MISC_BUTTON_ASSISTANT) gp_in.buttons |= Gamepad::BUTTON_ASSISTANT;
 ```
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `cmake --build build`
 Expected: exit 0. (No behavior change yet: no output driver reads the new bits.)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add Firmware/RP2040/src/Gamepad/Gamepad.h Firmware/RP2040/src/Bluepad32/Bluepad32.cpp
@@ -198,7 +198,7 @@ git commit -m "Carry Stadia Capture and Assistant buttons through the gamepad mo
 - Consumes: nothing new.
 - Produces: `XInput::DESC_HID_REPORT[]`, `XInput::DESC_MS_OS_STRING[]`, `XInput::DESC_MS_OS_COMPAT_ID[]`, `XInput::MS_OS_VENDOR_CODE`; `XInputDevice::kb_wanted_` / `kb_sent_` members of type `hid_keyboard_report_t` (sent in Task 5); `DeviceDriver::echo_set_report()` virtual.
 
-- [ ] **Step 1: Descriptors**
+- [x] **Step 1: Descriptors**
 
 In `Descriptors/XInput.h`, add `#include "class/hid/hid_device.h"` under the existing includes. Then:
 
@@ -265,7 +265,7 @@ and after the array add:
 ```
 Note: `DESC_HID_REPORT` must be defined above `DESC_CONFIGURATION` because the macro uses `sizeof(DESC_HID_REPORT)`.
 
-- [ ] **Step 2: Driver header**
+- [x] **Step 2: Driver header**
 
 In `XInput.h`, add `#include "class/hid/hid.h"` and two private members:
 ```cpp
@@ -277,7 +277,7 @@ and a public override:
     bool echo_set_report() const override { return false; }
 ```
 
-- [ ] **Step 3: Driver base class**
+- [x] **Step 3: Driver base class**
 
 In `DeviceDriver.h`, inside `class DeviceDriver` public section add:
 ```cpp
@@ -299,7 +299,7 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t rep
 }
 ```
 
-- [ ] **Step 4: Driver callbacks**
+- [x] **Step 4: Driver callbacks**
 
 In `XInput.cpp` replace these four functions:
 
@@ -351,18 +351,18 @@ const uint8_t * XInputDevice::get_hid_descriptor_report_cb(uint8_t itf)
 ```
 Add `#include <algorithm>` at the top of `XInput.cpp`.
 
-- [ ] **Step 5: Build**
+- [x] **Step 5: Build**
 
 Run: `cmake --build build`
 Expected: exit 0, all `static_assert`s hold.
 
-- [ ] **Step 6: On-device check (checkpoint 2)**
+- [x] **Step 6: On-device check (checkpoint 2)** (passed 2026-09-22)
 
 User flashes the uf2, switches to XInput mode if needed. Expected in Device Manager: one "USB Composite Device" with children "Xbox 360 Controller for Windows" (under Xbox 360 Peripherals) and "HID Keyboard Device". Gamepad inputs and rumble still work in `joy.cpl` and Steam.
 
 If Windows shows the controller but no keyboard, or a keyboard but the controller is only a generic HID device: delete `HKLM\SYSTEM\CurrentControlSet\Control\UsbFlags\120900010114` (VID 1209, PID 0001, bcdDevice 0114) so Windows re-queries the OS descriptor, unplug, replug. If still failing, stop and revisit the fallback in the spec.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add Firmware/RP2040/src/Descriptors/XInput.h \
@@ -383,7 +383,7 @@ git commit -m "Make XInput mode a composite device with a HID keyboard interface
 **Interfaces:**
 - Consumes: `Gamepad::BUTTON_CAPTURE`, `Gamepad::BUTTON_ASSISTANT` (Task 3); `kb_wanted_`, `kb_sent_` (Task 4).
 
-- [ ] **Step 1: Build the wanted report when the pad updates**
+- [x] **Step 1: Build the wanted report when the pad updates**
 
 Inside `XInputDevice::process`, inside the `if (gamepad.new_pad_in())` block, right after `Gamepad::PadIn gp_in = gamepad.get_pad_in();`, add:
 
@@ -395,7 +395,7 @@ Inside `XInputDevice::process`, inside the `if (gamepad.new_pad_in())` block, ri
         kb_wanted_ = kb;
 ```
 
-- [ ] **Step 2: Send it when it changes and the endpoint is free**
+- [x] **Step 2: Send it when it changes and the endpoint is free**
 
 At the end of `XInputDevice::process` (after the rumble block), add:
 
@@ -410,16 +410,16 @@ At the end of `XInputDevice::process` (after the rumble block), add:
 ```
 Add `#include "class/hid/hid_device.h"` at the top of `XInput.cpp`.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `cmake --build build`
 Expected: exit 0.
 
-- [ ] **Step 4: On-device check (checkpoint 3)**
+- [x] **Step 4: On-device check (checkpoint 3)** (passed 2026-09-22)
 
 User flashes the uf2. In a key tester (for example the Windows `Notepad` won't show F14; use a browser key-event page or `PowerShell` with a key reader), pressing Capture reports F14 and Assistant reports F15, both release cleanly. Holding both reports both. Gamepad inputs and rumble still work. Mode switch Menu + LB + RB still enters web-app mode; Menu + D-pad Up returns to XInput.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Firmware/RP2040/src/USBDevice/DeviceDriver/XInput/XInput.cpp
@@ -434,11 +434,11 @@ git commit -m "Send Stadia Capture and Assistant as F14 and F15 over the keyboar
 - Create: `AGENTS.md` (repo root)
 - Modify: `README.md` (short "Fork notes" section at top)
 
-- [ ] **Step 1: Write AGENTS.md** covering: what the fork is, build command, files touched, boundaries (don't change other output modes; keep XInput interface 0 unchanged), current status, recent changes, lessons learned (VID/PID and the UsbFlags cache, the SET_REPORT echo).
+- [x] **Step 1: Write AGENTS.md** covering: what the fork is, build command, files touched, boundaries (don't change other output modes; keep XInput interface 0 unchanged), current status, recent changes, lessons learned (VID/PID and the UsbFlags cache, the SET_REPORT echo).
 
-- [ ] **Step 2: README fork note** with the Stadia mapping table and a link to the spec and plan.
+- [x] **Step 2: README fork note** with the Stadia mapping table and a link to the spec and plan.
 
-- [ ] **Step 3: Commit and push**
+- [x] **Step 3: Commit and push**
 
 ```bash
 git add AGENTS.md README.md docs plans
