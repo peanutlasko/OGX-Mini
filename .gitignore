@@ -10,4 +10,5 @@ Firmware/ESP32/components/btstack
 Firmware/ESP32/sdkconfig.old
 Firmware/external/pico-sdk
 Firmware/external/picotool
-Tools/dvd-dongle-rom.bin
+Tools/dvd-dongle-rom.bindist/
+build/
