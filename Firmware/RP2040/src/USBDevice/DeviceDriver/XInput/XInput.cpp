@@ -20,6 +20,12 @@ void XInputDevice::process(const uint8_t idx, Gamepad& gamepad)
 
         Gamepad::PadIn gp_in = gamepad.get_pad_in();
 
+        hid_keyboard_report_t kb{};
+        uint8_t key_count = 0;
+        if (gp_in.buttons & Gamepad::BUTTON_CAPTURE)   kb.keycode[key_count++] = HID_KEY_F14;
+        if (gp_in.buttons & Gamepad::BUTTON_ASSISTANT) kb.keycode[key_count++] = HID_KEY_F15;
+        kb_wanted_ = kb;
+
         switch (gp_in.dpad)
         {
             case Gamepad::DPAD_UP:
@@ -86,6 +92,15 @@ void XInputDevice::process(const uint8_t idx, Gamepad& gamepad)
         gp_out.rumble_l = out_report_.rumble_l;
         gp_out.rumble_r = out_report_.rumble_r;
         gamepad.set_pad_out(gp_out);
+    }
+
+    // Keyboard interface: send only on change, and only when the IN endpoint is free.
+    if (std::memcmp(&kb_wanted_, &kb_sent_, sizeof(kb_sent_)) != 0 && tud_hid_n_ready(0))
+    {
+        if (tud_hid_n_report(0, 0, &kb_wanted_, sizeof(kb_wanted_)))
+        {
+            kb_sent_ = kb_wanted_;
+        }
     }
 }
 
