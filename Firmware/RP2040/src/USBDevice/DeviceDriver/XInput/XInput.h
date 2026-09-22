@@ -2,6 +2,7 @@
 #define _XINPUT_DEVICE_H_
 
 #include "USBDevice/DeviceDriver/DeviceDriver.h"
+#include "class/hid/hid.h"
 #include "Descriptors/XInput.h"
 
 class XInputDevice : public DeviceDriver 
@@ -17,10 +18,13 @@ public:
     const uint8_t* get_hid_descriptor_report_cb(uint8_t itf)  override;
     const uint8_t* get_descriptor_configuration_cb(uint8_t index) override;
     const uint8_t* get_descriptor_device_qualifier_cb() override;
+    bool echo_set_report() const override { return false; }
 
 private:
     XInput::InReport in_report_;
     XInput::OutReport out_report_;
+    hid_keyboard_report_t kb_wanted_{};
+    hid_keyboard_report_t kb_sent_{};
 };
 
 #endif // _XINPUT_DEVICE_H_

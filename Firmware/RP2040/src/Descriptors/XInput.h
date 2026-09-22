@@ -4,6 +4,9 @@
 #include <cstdint>
 #include <cstring>
 
+#include "tusb.h"
+#include "class/hid/hid_device.h"
+
 namespace XInput
 {
 	static constexpr size_t ENDPOINT_IN_SIZE = 20;
@@ -183,17 +186,49 @@ namespace XInput
 		STRING_VERSION
 	};
 
+	static constexpr uint8_t MS_OS_VENDOR_CODE = 0x20;
+
+	// Microsoft OS 1.0 string descriptor, served at string index 0xEE.
+	// "MSFT100" in UTF-16LE followed by the vendor code and a pad byte.
+	static const uint16_t DESC_MS_OS_STRING[] =
+	{
+		0x0312,                                   // bLength 18, bDescriptorType STRING
+		'M', 'S', 'F', 'T', '1', '0', '0',
+		static_cast<uint16_t>(MS_OS_VENDOR_CODE), // bMS_VendorCode (low byte), bPad 0 (high byte)
+	};
+	static_assert(sizeof(DESC_MS_OS_STRING) == 18, "MS OS string descriptor must be 18 bytes");
+
+	// Microsoft OS 1.0 Extended Compat ID descriptor: interface 0 is XUSB10 (Xbox 360 wired).
+	static const uint8_t DESC_MS_OS_COMPAT_ID[] =
+	{
+		0x28, 0x00, 0x00, 0x00, // dwLength 40
+		0x00, 0x01,             // bcdVersion 1.00
+		0x04, 0x00,             // wIndex 0x0004 (extended compat ID)
+		0x01,                   // bCount 1
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // reserved
+		// Function section
+		0x00,                   // bFirstInterfaceNumber 0
+		0x01,                   // reserved
+		'X', 'U', 'S', 'B', '1', '0', 0x00, 0x00,       // compatibleID "XUSB10"
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // subCompatibleID
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00,             // reserved
+	};
+	static_assert(sizeof(DESC_MS_OS_COMPAT_ID) == 40, "MS OS compat ID descriptor must be 40 bytes");
+
+	// HID boot keyboard report descriptor for interface 1 (Stadia Capture -> F14, Assistant -> F15)
+	static const uint8_t DESC_HID_REPORT[] = { TUD_HID_REPORT_DESC_KEYBOARD() };
+
 	static const uint8_t DESC_DEVICE[] =
 	{
 		0x12,       // bLength
 		0x01,       // bDescriptorType (Device)
 		0x00, 0x02, // bcdUSB 2.00
-		0xFF,	      // bDeviceClass
-		0xFF,	      // bDeviceSubClass
-		0xFF,	      // bDeviceProtocol
+		0x00,	      // bDeviceClass (composite: class defined per interface)
+		0x00,	      // bDeviceSubClass
+		0x00,	      // bDeviceProtocol
 		0x40,	      // bMaxPacketSize0 64
-		0x5E, 0x04, // idVendor 0x045E
-		0x8E, 0x02, // idProduct 0x028E
+		0x09, 0x12, // idVendor 0x1209 (pid.codes; a Microsoft VID/PID would make xusb22 claim the whole device)
+		0x01, 0x00, // idProduct 0x0001 (pid.codes test PID)
 		0x14, 0x01, // bcdDevice 2.14
 		0x01,       // iManufacturer (String Index)
 		0x02,       // iProduct (String Index)
@@ -205,8 +240,8 @@ namespace XInput
 	{
 		0x09,        // bLength
 		0x02,        // bDescriptorType (Configuration)
-		0x30, 0x00,  // wTotalLength 48
-		0x01,        // bNumInterfaces 1
+		0x49, 0x00,  // wTotalLength 73 (9 + 39 XInput + 25 HID keyboard)
+		0x02,        // bNumInterfaces 2
 		0x01,        // bConfigurationValue
 		0x00,        // iConfiguration (String Index)
 		0x80,        // bmAttributes
@@ -249,7 +284,11 @@ namespace XInput
 		0x03,        // bmAttributes (Interrupt)
 		0x20, 0x00,  // wMaxPacketSize 32
 		0x08,        // bInterval 8 (unit depends on device speed)
+
+		// Interface 1: HID boot keyboard (Stadia Capture -> F14, Assistant -> F15)
+		TUD_HID_DESCRIPTOR(1, 0, HID_ITF_PROTOCOL_KEYBOARD, sizeof(DESC_HID_REPORT), 0x82, 8, 10),
 	};
+	static_assert(sizeof(DESC_CONFIGURATION) == 73, "XInput composite configuration descriptor length mismatch");
 };
 
 #endif // _XINPUT_DESCRIPTORS_H_

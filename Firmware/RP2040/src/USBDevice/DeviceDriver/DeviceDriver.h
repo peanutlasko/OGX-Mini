@@ -29,6 +29,10 @@ public:
     virtual const uint8_t* get_descriptor_configuration_cb(uint8_t index) = 0;
     virtual const uint8_t* get_descriptor_device_qualifier_cb() = 0;
     
+    // Whether tud_hid_set_report_cb should echo the host's SET_REPORT back as an input report.
+    // Upstream behavior is to echo; a keyboard must not (LED reports would look like key presses).
+    virtual bool echo_set_report() const { return true; }
+
     const usbd_class_driver_t* get_class_driver() { return &class_driver_; };
 
 protected:

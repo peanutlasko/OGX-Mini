@@ -1,4 +1,7 @@
+#include <algorithm>
 #include <cstring>
+
+#include "class/hid/hid_device.h"
 
 #include "USBDevice/DeviceDriver/XInput/tud_xinput/tud_xinput.h"
 #include "USBDevice/DeviceDriver/XInput/XInput.h"
@@ -88,19 +91,43 @@ void XInputDevice::process(const uint8_t idx, Gamepad& gamepad)
 
 uint16_t XInputDevice::get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t *buffer, uint16_t reqlen) 
 {
-    std::memcpy(buffer, &in_report_, sizeof(XInput::InReport));
-	return sizeof(XInput::InReport);
+    // Only the HID keyboard interface reaches this callback (XInput is a vendor interface).
+    uint16_t len = std::min<uint16_t>(reqlen, sizeof(kb_sent_));
+    std::memcpy(buffer, &kb_sent_, len);
+    return len;
 }
 
 void XInputDevice::set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t const *buffer, uint16_t bufsize) {}
 
 bool XInputDevice::vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const *request) 
 {
+    if (stage != CONTROL_STAGE_SETUP)
+    {
+        return true;
+    }
+    // Microsoft OS 1.0 feature request: GET Extended Compat ID (wIndex 0x0004).
+    // Windows sends it with recipient Device or Interface; TinyUSB routes all vendor-type requests here.
+    if (request->bmRequestType_bit.direction == TUSB_DIR_IN &&
+        request->bRequest == XInput::MS_OS_VENDOR_CODE &&
+        request->wIndex == 0x0004)
+    {
+        return tud_control_xfer(rhport, request,
+                                const_cast<uint8_t*>(XInput::DESC_MS_OS_COMPAT_ID),
+                                sizeof(XInput::DESC_MS_OS_COMPAT_ID));
+    }
     return false;
 }
 
 const uint16_t * XInputDevice::get_descriptor_string_cb(uint8_t index, uint16_t langid) 
 {
+    if (index == 0xEE)
+    {
+        return XInput::DESC_MS_OS_STRING;
+    }
+    if (index >= (sizeof(XInput::DESC_STRING) / sizeof(XInput::DESC_STRING[0])))
+    {
+        return nullptr;
+    }
 	const char *value = reinterpret_cast<const char*>(XInput::DESC_STRING[index]);
 	return get_string_descriptor(value, index);
 }
@@ -112,7 +139,7 @@ const uint8_t * XInputDevice::get_descriptor_device_cb()
 
 const uint8_t * XInputDevice::get_hid_descriptor_report_cb(uint8_t itf) 
 {
-    return nullptr;
+    return XInput::DESC_HID_REPORT;
 }
 
 const uint8_t * XInputDevice::get_descriptor_configuration_cb(uint8_t index) 
