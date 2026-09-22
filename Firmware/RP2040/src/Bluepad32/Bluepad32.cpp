@@ -244,6 +244,8 @@ static void controller_data_cb(uni_hid_device_t* device, uni_controller_t* contr
     if (uni_gp->misc_buttons & MISC_BUTTON_BACK)    gp_in.buttons |= gamepad->MAP_BUTTON_BACK;
     if (uni_gp->misc_buttons & MISC_BUTTON_START)   gp_in.buttons |= gamepad->MAP_BUTTON_START;
     if (uni_gp->misc_buttons & MISC_BUTTON_SYSTEM)  gp_in.buttons |= gamepad->MAP_BUTTON_SYS;
+    if (uni_gp->misc_buttons & MISC_BUTTON_CAPTURE)   gp_in.buttons |= Gamepad::BUTTON_CAPTURE;
+    if (uni_gp->misc_buttons & MISC_BUTTON_ASSISTANT) gp_in.buttons |= Gamepad::BUTTON_ASSISTANT;
 
     gp_in.trigger_l = gamepad->scale_trigger_l<10>(static_cast<uint16_t>(uni_gp->brake));
     gp_in.trigger_r = gamepad->scale_trigger_r<10>(static_cast<uint16_t>(uni_gp->throttle));

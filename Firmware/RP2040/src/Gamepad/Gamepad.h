@@ -46,6 +46,10 @@ public:
     static constexpr uint16_t BUTTON_SYS   = 0x0400;
     static constexpr uint16_t BUTTON_MISC  = 0x0800;
 
+    // Fixed, non-remappable extras (Stadia Capture / Assistant)
+    static constexpr uint16_t BUTTON_CAPTURE   = 0x1000;
+    static constexpr uint16_t BUTTON_ASSISTANT = 0x2000;
+
     static constexpr uint8_t ANALOG_OFF_UP    = 0;
     static constexpr uint8_t ANALOG_OFF_DOWN  = 1;
     static constexpr uint8_t ANALOG_OFF_LEFT  = 2;
