@@ -1,4 +1,14 @@
 # OGX-Mini
+
+> **Fork notes (peanutlasko/OGX-Mini, branch `stadia-extras`).** On the Pico 2 W in XInput mode this fork adds a second USB interface, a HID keyboard, so the Google Stadia controller's two extra buttons reach Windows:
+>
+> | Stadia button | Sent as |
+> |---|---|
+> | Capture | F14 |
+> | Assistant | F15 |
+>
+> XInput, rumble, mode switching and every other output mode are unchanged. Design: `docs/2026-09-22-stadia-extra-buttons-design.md`. Plan: `plans/2026-09-22-stadia-extra-buttons.md`. Build notes: `AGENTS.md`.
+
 ![OGX-Mini Boards](images/OGX-Mini-github.jpg "OGX-Mini Boards")
 
 Firmware for the RP2040, capable of emulating gamepads for several game consoles. The firmware comes in many flavors, supported on the [Adafruit Feather USB Host board](https://www.adafruit.com/product/5723), Pi Pico, Pi Pico 2, Pi Pico W, Pi Pico 2 W, Waveshare RP2040-Zero, Pico/ESP32 hybrid, and a 4-Channel RP2040-Zero setup.
