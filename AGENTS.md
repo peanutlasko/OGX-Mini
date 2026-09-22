@@ -3,7 +3,7 @@
 ## What this is
 Fork of [wiredopposite/OGX-Mini](https://github.com/wiredopposite/OGX-Mini) (branch `stadia-extras`) that turns a Raspberry Pi Pico 2 W into a Bluetooth-to-USB bridge for a Google Stadia controller on a Windows 11 PC. Stock OGX-Mini already gives XInput plus rumble; this fork adds the two Stadia-only buttons as keyboard keys (Capture → F14, Assistant → F15) by making XInput mode a composite USB device.
 
-Upstream layout is kept as-is (`Firmware/`, `WebApp/`, `hardware/`, `Tools/`). Fork-specific files: `docs/` (design spec), `plans/` (implementation plan), `dist/` (built uf2s, gitignored), this file.
+Lives inside the `laski-pc` ops workspace at `~/projects/laski-pc/src/ogx-mini-stadia` but is its own git repo. Upstream layout is kept as-is (`Firmware/`, `WebApp/`, `hardware/`, `Tools/`). Fork-specific files: `docs/` (design spec), `plans/` (implementation plan), `dist/` (built uf2s, gitignored), this file.
 
 ## Toolchain
 - Host: this Linux box. `cmake`, `ninja-build`, `gcc-arm-none-eabi`, `libnewlib-arm-none-eabi`, `libstdc++-arm-none-eabi-newlib` via apt.
