@@ -1,6 +1,6 @@
 # Stadia Extra Buttons Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make the Stadia controller's Capture and Assistant buttons arrive on Windows as keyboard keys F14 and F15 while the Pico 2 W keeps presenting an XInput controller with rumble.
 
